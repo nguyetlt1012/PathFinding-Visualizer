@@ -1,0 +1,12 @@
+
+.board{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 50px auto;
+    .nodes{
+        width: 875px;
+        display: flex;
+        flex-wrap: wrap;
+    }
+}
