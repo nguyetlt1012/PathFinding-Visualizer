@@ -1,22 +1,20 @@
-export function dijstra(arr, start, finish) {
-  const a = [];
-  for (let i = 0; i < 6; i++) {
-    const current = [];
-    for (let j = 0; j < 6; j++) {
-      current.push({
-        distance: 100,
-        row: i,
-        col: j,
-      });
-    }
-    a.push(current);
+export function dijstra(arr, startNode, finishNode) {
+  const visitedNodesInOrder = [];
+  startNode.distance=0;
+  const unvisitedNodes = getAllNodes(arr);
+  while (!!unvisitedNodes.length) {
+    sortNodesByDistance(unvisitedNodes);
+    const closest = unvisitedNodes.shift();
+    if(closest.isWall) continue;
+    if (closest.distance === Infinity) return visitedNodesInOrder;
+    closest.isVisited = true;
+    visitedNodesInOrder.push(closest);
+    if(closest=== finishNode) return visitedNodesInOrder;
+    update(closest, arr);
+    
   }
-  a[2][2].distance = 0;
-const current = getAllNodes(a);
-sortNodesByDistance(current);
-const closest = current.shift();
-update(closest,a);
-  return a;
+  console.log("dijstra");
+  
 }
 function sortNodesByDistance(a) {
   a.sort((nodeA, nodeB) => nodeA.distance - nodeB.distance);
@@ -31,10 +29,29 @@ function getAllNodes(grid) {
   }
   return nodes;
 }
-function update( node, arr){
-    const neighbors = [];
-    neighbors.push(arr[2][1],arr[2][3],arr[1][2],arr[3][2]);
-    for( const neighbor of neighbors){
-        neighbor.distance = node.distance + 1;
-    }
+function update(node, arr) {
+  const unvisitedNeighbors = getUnvisitedNeighbors(node, arr)
+  
+  for (const neighbor of unvisitedNeighbors) {
+    neighbor.distance = node.distance + 1;
+    neighbor.previousNode = node;
+  }
+}
+function getUnvisitedNeighbors(node, grid) {
+  const neighbors = [];
+  const {col, row} = node;
+  if (row > 0) neighbors.push(grid[row - 1][col]);
+  if (row < grid.length - 1) neighbors.push(grid[row + 1][col]);
+  if (col > 0) neighbors.push(grid[row][col - 1]);
+  if (col < grid[0].length - 1) neighbors.push(grid[row][col + 1]);
+  return neighbors.filter(neighbor => !neighbor.isVisited);
+}
+export function getNodesInShortestPathOrder(finishNode) {
+  const nodesInShortestPathOrder = [];
+  let currentNode = finishNode;
+  while (currentNode !== null) {
+    nodesInShortestPathOrder.unshift(currentNode);
+    currentNode = currentNode?.previousNode;
+  }
+  return nodesInShortestPathOrder;
 }

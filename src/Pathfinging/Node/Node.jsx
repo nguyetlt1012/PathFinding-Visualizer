@@ -5,7 +5,7 @@ const Node = (props) => {
   
   const {click, row, col,handleMouse,  isEnd, isStart, isVisited, isWall}= props;
   
-  const nameNode = (isStart||isEnd) ? "fall" : (isWall) ? "click" :""; 
+  const nameNode = (isStart||isEnd) ? "fall" : (isWall) ? "click"  : ""; 
   return (
     
     <div

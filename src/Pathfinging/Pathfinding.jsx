@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { dijstra, getNodesInShortestPathOrder } from "./Algorithm/Dijstra";
 import Node from "./Node/Node";
 import "./Pathfinding.scss";
 const Pathfinding = () => {
@@ -49,17 +50,63 @@ const Pathfinding = () => {
     }
   };
 
-  // const curret = dijstra();
-  // console.log(curret);
-  // useEffect(()=>{
-  //   // var x= document.querySelectorAll('.click').forEach((e)=> {
-  //   //   let a= e.id.split('-').map((e)=>parseInt(e));
-  //   //   nodes[a[0]][a[1]]=1;
-
-  //   // })
-  //   // console.log(arr);
-
+  // const a=[];
+  // for (let i = 0; i < 4; i++) {
+  //   const current = [];
+  //   for (let j = 0; j < 4; j++) {
+  //     current.push({
+  //       distance: 100,
+  //       row: i,
+  //       col: j,
+  //       isVisited: false
+  //     });
+  //   }
+  //   a.push(current);
+  // }
+  async function render () {
+    const result =  await dijstra(arr,arr[START][START], arr[END][END]);
+    const path = await getNodesInShortestPathOrder(arr[END][END])
+    result.shift();
+    const length = result.length
+    result.map((node,i) =>{
+      if(i===length-1) {
+        setTimeout(()=>{
+          animatePath(path)
+        }, 13*i);
+       
+      }
+      setTimeout(() => {
+        document.getElementById(`${node.row}-${node.col}`).className="square visited"
+      }, 10 * i);
+      
+    })
+    const animatePath= (path) =>{
+      for(let i=1; i< path.length; i++){
+        setTimeout(()=>{
+          const node = path[i];
+          document.getElementById(`${node.row}-${node.col}`).className="square path"
+        },70*i)
+      }
+    }
+    
+    console.log("find");
+    
+    console.log(path);
+    
+    
+   }
+  // useEffect( ()=>  {
+    
+  //  const visitedNodes =  render()
+    
+    
   // },[click])
+  
+  const handleFind = (e) =>{
+    e.preventDefault();
+    render()
+    console.log("click button");
+  }
   return (
     <div className="board">
       <div className="nodes" onClick={handleClick}>
@@ -81,6 +128,7 @@ const Pathfinding = () => {
           });
         })}
       </div>
+      <button onClick={handleFind}>RUN</button>
     </div>
   );
 };
