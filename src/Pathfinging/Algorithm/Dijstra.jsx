@@ -10,7 +10,7 @@ export function dijstra(arr, startNode, finishNode) {
     closest.isVisited = true;
     visitedNodesInOrder.push(closest);
     if(closest=== finishNode) return visitedNodesInOrder;
-    update(closest, arr);
+    update(closest, arr,finishNode);
     
   }
   console.log("dijstra");
@@ -29,14 +29,15 @@ function getAllNodes(grid) {
   }
   return nodes;
 }
-function update(node, arr) {
+function update(node, arr,finishNode) {
   const unvisitedNeighbors = getUnvisitedNeighbors(node, arr)
   
   for (const neighbor of unvisitedNeighbors) {
-    neighbor.distance = node.distance + 1;
+    neighbor.distance = node.distance + 1 
     neighbor.previousNode = node;
   }
 }
+
 function getUnvisitedNeighbors(node, grid) {
   const neighbors = [];
   const {col, row} = node;

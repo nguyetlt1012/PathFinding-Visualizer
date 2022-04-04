@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Astar, getNodesInShortestPathOrderAstar } from "./Algorithm/Astar";
 import { dijstra, getNodesInShortestPathOrder } from "./Algorithm/Dijstra";
 import Node from "./Node/Node";
 import "./Pathfinding.scss";
@@ -8,11 +9,10 @@ const Pathfinding = () => {
   const START = 10;
   const END = 15;
 
-  
   const [arr, setArr] = useState([]);
-  useEffect(()=>{
+  useEffect(() => {
     const initGrid = () => {
-      let grid=[];
+      let grid = [];
       for (let i = 0; i < ROWS; i++) {
         let row = [];
         for (let j = 0; j < COLUMNS; j++) {
@@ -31,13 +31,11 @@ const Pathfinding = () => {
       }
       return grid;
     };
-    const grid = initGrid();  
-    setArr(grid)
-  },[])
-  
- 
-  const [click, setClick] = useState(false);
+    const grid = initGrid();
+    setArr(grid);
+  }, []);
 
+  const [click, setClick] = useState(false);
 
   const handleClick = () => {
     setClick(!click);
@@ -63,49 +61,93 @@ const Pathfinding = () => {
   //   }
   //   a.push(current);
   // }
-  async function render () {
-    const result =  await dijstra(arr,arr[START][START], arr[END][END]);
-    const path = await getNodesInShortestPathOrder(arr[END][END])
+  const resetArray =() =>{
+     return arr.map((row, i)=> row.map((node,y) =>{
+      let newNode = {...node, distance: Infinity, previousNode: null};
+      return newNode
+    }))
+  }
+  const removeCss = () => {
+    const list = document.querySelectorAll(".square");
+    
+    list.forEach((e)=> {
+      e.classList.remove("visited");
+      e.classList.remove("path")
+    })
+  }
+  async function render() {
+     removeCss()
+    const newarr = resetArray();
+    const result = await dijstra(newarr, newarr[START][START], newarr[END][END]);
+    const path = await getNodesInShortestPathOrder(newarr[END][END]);
     result.shift();
-    const length = result.length
-    result.map((node,i) =>{
-      if(i===length-1) {
-        setTimeout(()=>{
-          animatePath(path)
-        }, 13*i);
-       
+    const length = result.length;
+    result.map((node, i) => {
+      if (i === length - 1) {
+        setTimeout(() => {
+          animatePath(path);
+        }, 13 * i);
       }
       setTimeout(() => {
-        document.getElementById(`${node.row}-${node.col}`).className="square visited"
+        if(i<length-1){
+          document.getElementById(`${node.row}-${node.col}`).className =
+          "square visited";
+        }
+        
       }, 10 * i);
-      
-    })
-    const animatePath= (path) =>{
-      for(let i=1; i< path.length; i++){
-        setTimeout(()=>{
+    });
+    const animatePath = (path) => {
+      for (let i = 1; i < path.length-1; i++) {
+        setTimeout(() => {
           const node = path[i];
-          document.getElementById(`${node.row}-${node.col}`).className="square path"
-        },70*i)
+          document.getElementById(`${node.row}-${node.col}`).className =
+            "square path";
+        }, 70 * i);
       }
-    }
+    };
+    console.log(newarr[10][12], arr[10][12]);
+  }
+  async function astar() {
+    removeCss()
+    const newarr = resetArray();
+    const result = await Astar(newarr, newarr[START][START], newarr[END][END]);
+    const path = await getNodesInShortestPathOrderAstar(newarr[END][END]);
+    result.shift();
+    const length = result.length;
+    result.map((node, i) => {
+      if (i === length - 1) {
+        setTimeout(() => {
+          animatePath(path);
+        }, 13 * i);
+      }
+      setTimeout(() => {
+        if(i<length-1){
+          document.getElementById(`${node.row}-${node.col}`).className =
+          "square visited";
+        }
+      }, 10 * i);
+    });
+    const animatePath = (path) => {
+      for (let i = 1; i < path.length-1; i++) {
+        setTimeout(() => {
+          const node = path[i];
+          document.getElementById(`${node.row}-${node.col}`).className =
+            "square path";
+        }, 70 * i);
+      }
+    };
     
-    console.log("find");
-    
-    console.log(path);
-    
-    
-   }
-  // useEffect( ()=>  {
-    
-  //  const visitedNodes =  render()
-    
-    
-  // },[click])
-  
-  const handleFind = (e) =>{
+  }
+  const handleFind = (e) => {
     e.preventDefault();
-    render()
-    console.log("click button");
+    render();
+    console.log("dijistra");
+  };
+  const handleFindA = (e) =>{
+    e.preventDefault();
+    astar();
+    console.log("astar");
+
   }
   return (
     <div className="board">
@@ -128,8 +170,12 @@ const Pathfinding = () => {
           });
         })}
       </div>
-      <button onClick={handleFind}>RUN</button>
-    </div>
+      <div className="algorithmButton">
+      <button onClick={handleFind}>RUN DIJISTRA</button>
+      <button onClick={handleFindA}>RUN ASTAR</button>
+    
+      </div>
+      </div>
   );
 };
 
