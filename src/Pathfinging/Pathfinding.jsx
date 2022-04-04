@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Astar, getNodesInShortestPathOrderAstar } from "./Algorithm/Astar";
 import { dijstra, getNodesInShortestPathOrder } from "./Algorithm/Dijstra";
+import { Greedy } from "./Algorithm/Greedy";
 import Node from "./Node/Node";
 import "./Pathfinding.scss";
 const Pathfinding = () => {
@@ -61,24 +62,57 @@ const Pathfinding = () => {
   //   }
   //   a.push(current);
   // }
-  const resetArray =() =>{
-     return arr.map((row, i)=> row.map((node,y) =>{
-      let newNode = {...node, distance: Infinity, previousNode: null};
-      return newNode
-    }))
-  }
+  const resetArray = () => {
+    return arr.map((row, i) =>
+      row.map((node, y) => {
+        let newNode = {
+          ...node,
+          distance: Infinity,
+          previousNode: null,
+          isVisited: false,
+        };
+        return newNode;
+      })
+    );
+  };
   const removeCss = () => {
     const list = document.querySelectorAll(".square");
-    
-    list.forEach((e)=> {
+
+    list.forEach((e) => {
       e.classList.remove("visited");
-      e.classList.remove("path")
-    })
-  }
+      e.classList.remove("path");
+    });
+  };
+  const handleClear = () => {
+    const list = document.querySelectorAll(".square");
+
+    list.forEach((e) => {
+      e.classList.remove("visited");
+      e.classList.remove("path");
+      e.classList.remove("click");
+    });
+    const newArr = arr.map((row, i) =>
+      row.map((node, y) => {
+        let newNode = {
+          ...node,
+          distance: Infinity,
+          previousNode: null,
+          isWall: false,
+          isVisited: false,
+        };
+        return newNode;
+      })
+    );
+    setArr(newArr);
+  };
   async function render() {
-     removeCss()
+    removeCss();
     const newarr = resetArray();
-    const result = await dijstra(newarr, newarr[START][START], newarr[END][END]);
+    const result = await dijstra(
+      newarr,
+      newarr[START][START],
+      newarr[END][END]
+    );
     const path = await getNodesInShortestPathOrder(newarr[END][END]);
     result.shift();
     const length = result.length;
@@ -89,15 +123,14 @@ const Pathfinding = () => {
         }, 13 * i);
       }
       setTimeout(() => {
-        if(i<length-1){
+        if (i < length - 1) {
           document.getElementById(`${node.row}-${node.col}`).className =
-          "square visited";
+            "square visited";
         }
-        
       }, 10 * i);
     });
     const animatePath = (path) => {
-      for (let i = 1; i < path.length-1; i++) {
+      for (let i = 1; i < path.length - 1; i++) {
         setTimeout(() => {
           const node = path[i];
           document.getElementById(`${node.row}-${node.col}`).className =
@@ -108,7 +141,7 @@ const Pathfinding = () => {
     console.log(newarr[10][12], arr[10][12]);
   }
   async function astar() {
-    removeCss()
+    removeCss();
     const newarr = resetArray();
     const result = await Astar(newarr, newarr[START][START], newarr[END][END]);
     const path = await getNodesInShortestPathOrderAstar(newarr[END][END]);
@@ -121,14 +154,14 @@ const Pathfinding = () => {
         }, 13 * i);
       }
       setTimeout(() => {
-        if(i<length-1){
+        if (i < length - 1) {
           document.getElementById(`${node.row}-${node.col}`).className =
-          "square visited";
+            "square visited";
         }
       }, 10 * i);
     });
     const animatePath = (path) => {
-      for (let i = 1; i < path.length-1; i++) {
+      for (let i = 1; i < path.length - 1; i++) {
         setTimeout(() => {
           const node = path[i];
           document.getElementById(`${node.row}-${node.col}`).className =
@@ -136,19 +169,53 @@ const Pathfinding = () => {
         }, 70 * i);
       }
     };
+  }
+  async function greedy() {
+    removeCss();
+    const newarr = resetArray();
+    const result = await Greedy(newarr, newarr[START][START], newarr[END][END]);
+    const path = await getNodesInShortestPathOrderAstar(newarr[END][END]);
     
+    result.shift();
+    const length = result.length;
+    result.map((node, i) => {
+      if (i === length - 1) {
+        setTimeout(() => {
+          animatePath(path);
+        }, 13 * i);
+      }
+      setTimeout(() => {
+        if (i < length - 1) {
+          document.getElementById(`${node.row}-${node.col}`).className =
+            "square visited";
+        }
+      }, 10 * i);
+    });
+    const animatePath = (path) => {
+      for (let i = 1; i < path.length - 1; i++) {
+        setTimeout(() => {
+          const node = path[i];
+          document.getElementById(`${node.row}-${node.col}`).className =
+            "square path";
+        }, 70 * i);
+      }
+    };
   }
   const handleFind = (e) => {
     e.preventDefault();
     render();
     console.log("dijistra");
   };
-  const handleFindA = (e) =>{
+  const handleFindA = (e) => {
     e.preventDefault();
     astar();
     console.log("astar");
-
-  }
+  };
+  const handleFindGreedy = (e) => {
+    e.preventDefault();
+    greedy();
+    console.log("greedy best first");
+  };
   return (
     <div className="board">
       <div className="nodes" onClick={handleClick}>
@@ -171,11 +238,12 @@ const Pathfinding = () => {
         })}
       </div>
       <div className="algorithmButton">
-      <button onClick={handleFind}>RUN DIJISTRA</button>
-      <button onClick={handleFindA}>RUN ASTAR</button>
-    
+        <button onClick={handleFind}>RUN DIJISTRA</button>
+        <button onClick={handleFindA}>RUN ASTAR</button>
+        <button onClick={handleFindGreedy}>RUN GREEDY BEST FIRST</button>
+        <button onClick={handleClear}>CLEAR ALL</button>
       </div>
-      </div>
+    </div>
   );
 };
 

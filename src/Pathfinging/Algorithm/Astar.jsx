@@ -34,7 +34,7 @@ export function Astar(arr, startNode, finishNode) {
     const unvisitedNeighbors = getUnvisitedNeighbors(node, arr)
     
     for (const neighbor of unvisitedNeighbors) {
-      neighbor.distance = node.distance + 1 + dis(neighbor, finishNode);
+      neighbor.distance = node.distance  +1 + dis(neighbor, finishNode);
       neighbor.previousNode = node;
     }
   }
